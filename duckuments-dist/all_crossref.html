@@ -1,0 +1,59 @@
+<html><head><style>
+    .container {
+        margin-bottom: 10em;
+        border: solid 1px red;
+        padding: 1em;
+    }
+    *[id-short] {
+        
+    }
+    *[id-short] * {
+        
+    }
+</style></head><body><div id="container"></div><details><summary>See all references</summary><div></div></details><script>
+
+id2url = {};
+
+var divs = document.querySelectorAll("[id]");
+for (var i = 0; i < divs.length; i++) {
+    e = divs[i];
+    ID = e.getAttribute('id');
+    url = e.getAttribute('url');
+    id2url[ID] = url;
+    console.log(ID + ' -> ' + url);
+    
+    if(ID.includes(":")) {
+        ID2 = ID.split(":")[1];
+        id2url[ID2] = url;
+        console.log(ID2 + ' -> ' + url);
+    }
+}
+
+
+
+function log(s) {
+    console.info(s);
+    var p = document.createElement('p');
+    p.innerHTML = s;
+    parent = document.getElementById('container');
+    parent.appendChild(p);
+}
+
+if (window.location.hash) {
+    hash = window.location.hash;
+    hashid = hash.substring(1);
+    console.info(hashid);
+    if (hashid in id2url) {
+        outlink = id2url[hashid];
+        log("Redirecting to <a href='" + outlink + "'><code>" + outlink + "</code></a>");
+        window.location = outlink;
+    } else {
+        log("Could not find reference <code>" + hashid + "</code>.");
+        log("This means that the text to which it refers has not made it to the master branch yet.");
+        log("Or, it might mean that the bot has not compiled and published the new book version yet.");
+        log("Note that this is completely normal if you are creating a new section.");
+    }
+} else {
+    log("No hash found");
+}
+</script></body></html>

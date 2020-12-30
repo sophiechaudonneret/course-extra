@@ -1,0 +1,6 @@
+- display: 6 warnings
+  filename: warnings.html
+  tags:
+  - meta
+- display: 5 tasks
+  filename: tasks.html
