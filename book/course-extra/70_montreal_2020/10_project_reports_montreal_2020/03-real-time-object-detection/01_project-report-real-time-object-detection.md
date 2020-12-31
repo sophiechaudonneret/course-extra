@@ -36,16 +36,16 @@ The goal of this project is to propose a method for real-time object detection a
 
 ### Existing solution {#real-time-object-detection-final-literature}
 
-For this work, and with this difficult context, we were not able to built our own dataset to train ou different models. 
-Fortunatly, a [previous project](https://docs.duckietown.org/daffy/AIDO/out/object_detection_dataset.html "Object Detection Dataset") built a whole dataset for to implement object detection in Duckietown.
-We also found [this project](https://github.com/duckietown/duckietown-objdet  "Project TBD") that aimed at implementing a object detector in DuckieTown. Unfortunately, this project seems to be deprecated so we did not use it.
+For this work, and with this difficult context, we were not able to build our own dataset to train our different models. 
+Fortunately, a [previous project](https://docs.duckietown.org/daffy/AIDO/out/object_detection_dataset.html "Object Detection Dataset") built a whole dataset for to implement object detection in Duckietown.
+We also found [this project](https://github.com/duckietown/duckietown-objdet  "Project TBD") that aimed at implementing an object detector in DuckieTown. Unfortunately, this project seems to be deprecated, so we did not use it.
 Finally, we used the exercise 3 structure to implement our final object detector.
 ### Opportunity {#real-time-object-detection-final-opportunity}
 
 As stated before, no object detectors were implemented in the DuckieTown pipeline for one good reason : it could not run on the Raspberry Pi in real time.
-This year, we were lucky to also have a Jetson Nano that have a more powerful GPU. We therefore decided to try and implement a object detector that :
+This year, we were lucky to also have a Jetson Nano that has a more powerful GPU. We therefore decided to try and implement an object detector that :
 - run faster with Tracking while maintaining a good accuracy,
-- can run on the Jetson Nano at reasonnable speed.
+- can run on the Jetson Nano at reasonable speed.
 
 To do this, we compared and used different objection detection methods to find out which offers the best compromise between performance and accuracy in the DuckieTown setting.
 To increase the speed of the object detection, we also used tracking between two object detections.
@@ -60,7 +60,7 @@ A NN performance is measure in FLOPs, which stands for **FL**oating **P**oint **
 
 The main mathematical difficulty that the reader can encounter is the Kalman Filter.
 Kalman filter is used in this project in the Tracking step. 
-The main idea of the Kalman filter is that, given a model of evolution of our state, its noise model and the measurement and noise measrueement model of our system, we can firstly predict the next step state then, with our measurement corresponding to this new step, we can update to take into account both the dynamic model and the measurement.
+The main idea of the Kalman filter is that, given a model of evolution of our state, its noise model and the measurement and noise measurement model of our system, we can firstly predict the next step state then, with our measurement corresponding to this new step, we can update to take into account both the dynamic model and the measurement.
 A full lecture was given by Dr. Forbes on this subject [there](https://liampaull.ca/ift6757/assets/pres.pdf "Kalman Filter lecture").
 
 **MAYBE EXPLAIN HUNGARIAN ALGORITHM TOO ?**
@@ -74,7 +74,9 @@ One stage ODs tend to have faster inference time while two stages ODs tend to ha
 ### FasterRCNN architecture and performance
 __Explain here the architecture of FasterRCNN__
 
-Here is the performance of FasterRCNN with two different bakcbones : _Resnet50_ and _Resnet18_. Both were tested using the DuckieTown dataset mentioned [above]{#real-time-object-detection-final-literature}. The metrics used to assess the object detector's performance are **FPS** (**F**rames **P**er **S**econd) and **mAP** (**m**ean **A**verage **P**recision). The first one measures the detector's speed and the second one its accuracy.
+
+
+Here is the performance of FasterRCNN with two different backbones : _Resnet50_ and _Resnet18_. Both were tested using the DuckieTown dataset mentioned [above]{#real-time-object-detection-final-literature}. The metrics used to assess the object detector's performance are **FPS** (**F**rames **P**er **S**econd) and **mAP** (**m**ean **A**verage **P**recision). The first one measures the detector's speed and the second one its accuracy.
 
 - Using the **Resnet50** backbone :
 <div align="center">
@@ -118,13 +120,13 @@ Here is the performance of FasterRCNN with two different bakcbones : _Resnet50_ 
 </div>
 
 ### Yolo architecture and performance
-YOLOv5 is a one stage object detector, like any one stage detector, it is made of three main part :
+YOLOv5 is a one stage object detector, like any one stage detector, it is made of three main parts :
 
 - model backbone
 - model neck
 - model head
 
-The model backbone is used in object detection to extracts the most important features : the richest and most distinctive ones. In YOLOv5, the backbone used is [CSPNet](https://github.com/WongKinYiu/CrossStagePartialNetworks "CSPNet repo") which stands for **C**ross **S**tage **P**artial **Net**works. 
+The model backbone is used in object detection to extract the most important features : the richest and most distinctive ones. In YOLOv5, the backbone used is [CSPNet](https://github.com/WongKinYiu/CrossStagePartialNetworks "CSPNet repo") which stands for **C**ross **S**tage **P**artial **Net**works. 
 
 Model neck is used in object detectors to build feature pyramids in order to detect an object of different sizes and scales. There are many different feature pyramid techniques available. YOLOv5 uses [PANet](https://arxiv.org/abs/1803.01534 "PANet article"), which stands for **P**ath **A**ggregation **Net**work.
 
@@ -138,7 +140,7 @@ Figure 3.1 gives an overall representation of YOLOv5 architecture.
 </figure>
 
 
-The metrics used are the same as for FasterRCNN, and only the fifth version of Yolo has been tested, on high and low resolution images.
+The metrics used are the same as for FasterRCNN, and only the fifth version of Yolo has been tested, on high and low-resolution images.
 <div align="center">
 <col4 figure-id="tab:YOLOv5" class="labels-row1">
     <span>Resolution</span>
@@ -156,9 +158,9 @@ The metrics used are the same as for FasterRCNN, and only the fifth version of Y
 </col4>
 </div>
 
-### Final comparision
-Those results were not obtained using the Jetson Nano nor the Raspberry Pi. Instead, we compared them using the same processor and RAM, to assess which would perform best on the Jetson Nano assuming that the performances of the detectors will have similar tendencies on the Jetson Nano.
-Here are some specifications regarding the material used to obtained the metrics provided above :
+### Final comparison
+Those results were not obtain using the Jetson Nano nor the Raspberry Pi. Instead, we compared them using the same processor and RAM, to assess which would perform best on the Jetson Nano assuming that the performances of the detectors will have similar tendencies on the Jetson Nano.
+Here are some specifications regarding the material used to obtain the metrics provided above :
 
 - CPU : AMD Ryzen Threadripper 1950X 16-Core Processor
 - GPU : GeForce RTX 2080 Ti, 11 GB
@@ -178,7 +180,7 @@ For tracking, we assume here that the bounding boxes moves at constant speed in 
 This assumption is realistic as most of the object detected will be static (duckies, cones, bus, etc...) except for the duckiebots that have only limited acceleration when driving.
 -->
 We will use a Kalman filter to track our bounding boxes. 
-Let $\mathrm{X_k}$ be the state vector that represent the bounding boxe's coordinates and their velocities. 
+Let $\mathrm{X_k}$ be the state vector that represents the bounding boxe coordinates and their velocities. 
 
 \begin{equation}
 \mathrm{X_k} = [x_1, y_1, x_2, y_2, v_{x,1}, v_{y,1}, v_{x,2}, v_{x,2}]
@@ -254,22 +256,72 @@ Let there be *N* predicted bounding boxes and *M* observations (detected boundin
 IoU = \frac{Area\; of \; Overlap}{Area\; of \; Union}
 \end{equation}
 
-
 ## Object avoidance
+In this section, we will see how we can use the duckiebot and duckie detector to implement certain behaviours in order to make DuckieTown safe again.
+We had two main goal behaviours :
 
-### Stoping in front of an obstacle
+- Stopping in front of an obstacle
+- Overtaking an obstacle
+
+### Compute obstacle position in lane
+First of all, we need to know, from the bounding boxes detected by our detector, the position of the obstacles.
+This position will be used to pass two information to the lane controller : 
+
+- Is there an obstacle close enough in our lane ?
+- Is there a close obstacle in the other (left) lane ?
+
+Let's take a bounding box. The coordinate of this box is given in pixels in the distorted image (due to the camera lens). First, we need to compute the center of the obstacle on the ground. Then, we need to rectify the center coordinates so that it corresponds to the rectified image. Since the point is considered on the ground (low edge of the box), we can use the GroundProjection module (used for line detection) to estimate the real coordinates from the duckiebot's origin.
+Then, with the duckiebot's lane pose, we can compute the obstacle lane pose using this formula :
+\begin{equation}
+    pose_y = \cos(\phi) (y + d) + \sin(\phi) x
+\end{equation}
+
+A diagram given in figure 3.2 illustrates the situation, the grey rectangle being the duckiebot and the yellow cross an obstacle.
+<figure>
+    <figcaption>Obstacle position diagram</figcaption>
+    <img style='width:30em' src="schema.png"/>
+</figure>
+
+In the figure 3.3, the flowchart to make the decision is detailed.
+
+<figure>
+    <figcaption>Obstacle position flowchart</figcaption>
+    <img style='width:30em' src="flowchart1.png"/>
+</figure>
+
+### Stopping in front of an obstacle
+The first behaviour is quite straight forward : if an obstacle (duckiebot of duckie) is detected in our lane close enough from the bot, the lane controller passes $v = 0$ to the wheel command. 
+Figure 3.4 details the algorithm used to stop in front of an obstacle.
+
 <figure>
     <figcaption>Algorithm to stop in front of an obstacle</figcaption>
     <img style='width:30em' src="algo1.png"/>
 </figure>
 
+
 ### Overtaking an obstacle
+Here the problem is more challenging : avoiding an obstacle. 
+In the literature, obstacle avoidance is well researched and most of the solutions proposed use graphs in which the vehicle must find the shortest path while respecting constraints or path planning. 
+
+In DuckieTown, we thought it would be simpler to overtake the obstacle by switching lane. 
+
+Our solution is to change the d_off parameter used in the Lane Controller Node to make the duckiebot believe it is not in the right lane. 
+
+First, we need to increase the d_off parameter so that the bot moves to the left lane, then keep it increased while it passes the obstacle and finally decrease it to switch back to the right lane.
+
+The decision process to know when to overtake is detailed in figure 3.3. In figure 3.5, the flowchart to overtake the obstacle is explained. The corresponding algorithm is also detailed in figure 3.6.
+
+<figure>
+    <figcaption>Obstacle overtaking flowchart</figcaption>
+    <img style='width:30em' src="flowchart2.png"/>
+</figure>
+
 <figure>
     <figcaption>Algorithm to overtake an obstacle</figcaption>
     <img style='width:30em' src="algo2.png"/>
 </figure>
 
-
+<!--
 ## Definition of the problem {#real-time-object-detection-final-problem-def}
 
 _Up to now it was all fun and giggles. This is the most important part of your report: a crisp, possibly mathematical, definition of the problem you tackled. You can use part of the preliminary design document to fill this section._
@@ -290,6 +342,8 @@ Describe here, in technical detail, what you have done. Make sure you include:
 - If you have collected a number of logs, add link to where you stored them
 
 _Feel free to create subsections when useful to ease the flow_
+
+-->
 
 ## Formal performance evaluation / Results {#real-time-object-detection-final-formal}
 
