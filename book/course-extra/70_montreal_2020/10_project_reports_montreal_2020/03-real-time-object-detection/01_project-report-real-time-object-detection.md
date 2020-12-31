@@ -63,16 +63,17 @@ Kalman filter is used in this project in the Tracking step.
 The main idea of the Kalman filter is that, given a model of evolution of our state, its noise model and the measurement and noise measrueement model of our system, we can firstly predict the next step state then, with our measurement corresponding to this new step, we can update to take into account both the dynamic model and the measurement.
 A full lecture was given by Dr. Forbes on this subject [there](https://liampaull.ca/ift6757/assets/pres.pdf "Kalman Filter lecture").
 
-*MAYBE EXPLAIN HUNGARIAN ALGORITHM TOO ?*
+**MAYBE EXPLAIN HUNGARIAN ALGORITHM TOO ?**
 
 On another subject, the two neural networks that are presented are compared have two very different architectures. 
-Indeed, there are mainly two types of object detectors. On the one hand, we have the one-stage object detectors, such a Yolo or SSD-MobileNet, which use *TO COMPLETE*. On the other hand, the two stages object detectors *TO COMPLETE*, such as FasterRCNN or MaskRCNN.
+Indeed, there are mainly two types of object detectors. On the one hand, we have the one-stage object detectors, such a Yolo or SSD-MobileNet, which use **TO COMPLETE**. On the other hand, the two stages object detectors **TO COMPLETE**, such as FasterRCNN or MaskRCNN.
 One stage ODs tend to have faster inference time while two stages ODs tend to have higher mean average precision. 
 [This article](https://www.ecva.net/papers/eccv_2020/papers_ECCV/papers/123590528.pdf "MimicDet") explains quite thoroughly the differences and similarities between the two architectures. 
 
-## Object detection models : FasterRCNN vs. Yolo v5 {#real-time-object-detection-final-first-section}
+## Object detection models : FasterRCNN vs. YOLOv5 {#real-time-object-detection-final-first-section}
 ### FasterRCNN architecture and performance
 __Explain here the architecture of FasterRCNN__
+
 Here is the performance of FasterRCNN with two different bakcbones : _Resnet50_ and _Resnet18_. Both were tested using the DuckieTown dataset mentioned [above]{#real-time-object-detection-final-literature}. The metrics used to assess the object detector's performance are **FPS** (**F**rames **P**er **S**econd) and **mAP** (**m**ean **A**verage **P**recision). The first one measures the detector's speed and the second one its accuracy.
 
 - Using the **Resnet50** backbone :
@@ -117,9 +118,29 @@ Here is the performance of FasterRCNN with two different bakcbones : _Resnet50_ 
 </div>
 
 ### Yolo architecture and performance
+YOLOv5 is a one stage object detector, like any one stage detector, it is made of three main part :
+
+- model backbone
+- model neck
+- model head
+
+The model backbone is used in object detection to extracts the most important features : the richest and most distinctive ones. In YOLOv5, the backbone used is [CSPNet](https://github.com/WongKinYiu/CrossStagePartialNetworks "CSPNet repo") which stands for **C**ross **S**tage **P**artial **Net**works. 
+
+Model neck is used in object detectors to build feature pyramids in order to detect an object of different sizes and scales. There are many different feature pyramid techniques available. YOLOv5 uses [PANet](https://arxiv.org/abs/1803.01534 "PANet article"), which stands for **P**ath **A**ggregation **Net**work.
+
+The YOLOv5 model head is the same as in the previous version of Yolo.
+
+Figure 3.1 gives an overall representation of YOLOv5 architecture. 
+
+<figure>
+    <figcaption>YOLOv5 architecture (source : https://github.com/ultralytics)</figcaption>
+    <img style='width:30em' src="yolov5.png"/>
+</figure>
+
+
 The metrics used are the same as for FasterRCNN, and only the fifth version of Yolo has been tested, on high and low resolution images.
 <div align="center">
-<col4 figure-id="tab:Yolo v5" class="labels-row1">
+<col4 figure-id="tab:YOLOv5" class="labels-row1">
     <span>Resolution</span>
     <span>FPS (on GPU)</span>
     <span>FPS (on CPU)</span>
@@ -136,23 +157,116 @@ The metrics used are the same as for FasterRCNN, and only the fifth version of Y
 </div>
 
 ### Final comparision
+Those results were not obtained using the Jetson Nano nor the Raspberry Pi. Instead, we compared them using the same processor and RAM, to assess which would perform best on the Jetson Nano assuming that the performances of the detectors will have similar tendencies on the Jetson Nano.
+Here are some specifications regarding the material used to obtained the metrics provided above :
+
+- CPU : AMD Ryzen Threadripper 1950X 16-Core Processor
+- GPU : GeForce RTX 2080 Ti, 11 GB
+- RAM : 32 GB
 
 ## Tracking  {#real-time-object-detection-final-second-section}
+
 ### Motivation
+Now that we have found the detector that provides the best compromise between performance and accuracy, we wanted to be able to speed up the detection process by tracking the detected bounding boxes between two detections in order to be able to skip frames in our object detector.
+
+Moreover, Tracking can help to recover dropped detection for in-between frames.
+
 ### Kalman filter
+To track a bounding over frames, we will be working in pixel space. 
+For tracking, we assume here that the bounding boxes moves at constant speed in pixel space.
+<!--
+This assumption is realistic as most of the object detected will be static (duckies, cones, bus, etc...) except for the duckiebots that have only limited acceleration when driving.
+-->
+We will use a Kalman filter to track our bounding boxes. 
+Let $\mathrm{X_k}$ be the state vector that represent the bounding boxe's coordinates and their velocities. 
+
+\begin{equation}
+\mathrm{X_k} = [x_1, y_1, x_2, y_2, v_{x,1}, v_{y,1}, v_{x,2}, v_{x,2}]
+\end{equation}
+
+The motion model of the system that will be used for prediction is quite simple (as velocity is assumed constant): 
+
+\begin{equation}
+\mathrm{F}=\left[\begin{array}{cccccccc}
+1 & 0 & 0 & 0 & d t & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & d t & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 & d t & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & d t \\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1
+\end{array}\right]
+\end{equation}
+
+The bounding box detection by object detector is used as measurement in the update step. The measurement is the bounding box coordinates :
+
+\begin{equation}
+\mathrm{z_k} = [x_1, y_1, x_2, y_2]
+\end{equation}
+
+The measurement model of the system is then :
+
+\begin{equation}
+\mathrm{H}=\left[\begin{array}{cccccccc}
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0
+\end{array}\right]
+\end{equation}
+
+
+The final Kalman filter equations for bounding box tracking is :
+
+- Prediction step :
+
+\begin{equation}
+\begin{aligned}
+\hat{\mathbf{x}}_{k}^{\prime} &=\mathbf{F} \hat{\mathbf{x}}_{k-1} \\
+\mathbf{P}_{k}^{\prime} &=\mathbf{F} \mathbf{P}_{k-1}^{\prime} \mathbf{F}^{T}+\mathbf{Q}
+\end{aligned}
+\end{equation}
+
+- Update step :
+
+\begin{equation}
+\begin{aligned}
+\hat{\mathbf{x}}_{k} &=\hat{\mathbf{x}}_{k}^{\prime}+\mathbf{K}_{k}\left(\mathbf{z}_{k}-\mathbf{H} \hat{\mathbf{x}}_{k}^{\prime}\right) \\
+\mathbf{P}_{k} &=\left(\mathbf{I}-\mathbf{K}_{k} \mathbf{H}\right) \mathbf{P}_{k}^{\prime} \\
+\mathbf{K}_{k} &=\mathbf{P}_{k}^{\prime} \mathbf{H}^{T}\left(\mathbf{H} \mathbf{P}_{k}^{\prime} \mathbf{H}^{T}+\mathbf{R}_{\mathbf{k}}\right)^{-1}
+\end{aligned}
+\end{equation}
+
+
+
 ### Hungarian filter
 
+In the previous section, we only talk about one bounding box that we track through frames. 
+
+In reality it is more complex : when there are multiple detections (i.e multiple bounding boxes), how to know which observation associate with which prediction at the update step ?
+
+A solution is to use the *Hungarian algorithm* for Data association. 
+
+Let there be *N* predicted bounding boxes and *M* observations (detected bounding boxes). The Hungarian Algorithm will match the *N* boxes to *N* observations among the *M* possible so that the solution is optimal over a given metric. Here, the metric used is **IoU**, which stands for **I**ntersection **o**ver **U**nion. It is computed using this formula :
+
+\begin{equation}
+IoU = \frac{Area\; of \; Overlap}{Area\; of \; Union}
+\end{equation}
+
+
 ## Object avoidance
+
 ### Stoping in front of an obstacle
 <figure>
     <figcaption>Algorithm to stop in front of an obstacle</figcaption>
-    <img style='width:30em' src="algo1.PNG"/>
+    <img style='width:30em' src="algo1.png"/>
 </figure>
 
 ### Overtaking an obstacle
 <figure>
     <figcaption>Algorithm to overtake an obstacle</figcaption>
-    <img style='width:30em' src="algo2.PNG"/>
+    <img style='width:30em' src="algo2.png"/>
 </figure>
 
 
