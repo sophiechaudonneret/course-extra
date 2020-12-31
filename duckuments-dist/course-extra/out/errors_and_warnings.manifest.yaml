@@ -1,6 +1,10 @@
-- display: 6 warnings
+- display: 8 warnings
   filename: warnings.html
   tags:
   - meta
-- display: 5 tasks
+- display: 7 tasks
   filename: tasks.html
+- display: 25 errors
+  filename: errors.html
+  tags:
+  - meta
