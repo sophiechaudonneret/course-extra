@@ -1,4 +1,4 @@
-# Instructions template {#instructions-groupname status=ready}
+# Instructions template {#instructions-real-time-object-detection status=ready}
 
 Before starting, you should have a look at some tips on [how to write beautiful Duckiebook pages](+duckumentation#book).
 
@@ -24,18 +24,18 @@ Requires: Camera calibration completed
 
 </div>
 
-## Video of expected results {#demo-groupname-expected}
+## Video of expected results {#demo-real-time-object-detection-expected}
 
 First, we show a video of the expected behavior (if the demo is successful).
 
 Make sure the video is compliant with Duckietown, i.e. : the city meets the [appearance specifications](+opmanual_duckietown#dt-ops-appearance-specifications) and the Duckiebots have duckies on board.
 
-## Laptop setup notes {#demo-groupname-laptop-setup}
+## Laptop setup notes {#demo-real-time-object-detection-laptop-setup}
 
 Does the user need to do anything to modify their local laptop configuration?
 
 
-## Duckietown setup notes {#demo-groupname-duckietown-setup}
+## Duckietown setup notes {#demo-real-time-object-detection-duckietown-setup}
 
 Here, describe the assumptions about the Duckietown, including:
 
@@ -45,13 +45,13 @@ Here, describe the assumptions about the Duckietown, including:
 
 Do not write instructions on how to build the city here, unless you are doing something very particular that is not in the [Duckietown operation manual](+opmanual_duckietown#duckietowns). Here, merely point to them.
 
-## Duckiebot setup notes {#demo-groupname-duckiebot-setup}
+## Duckiebot setup notes {#demo-real-time-object-detection-duckiebot-setup}
 
 Write here any special setup for the Duckiebot, if needed.
 
 Do not repeat instructions here that are already included in the [Duckiebot operation manual](+opmanual_duckiebot#opmanual_duckiebot).
 
-## Pre-flight checklist {#demo-groupname-pre-flight}
+## Pre-flight checklist {#demo-real-time-object-detection-pre-flight}
 
 The pre-flight checklist describes the steps that are sufficient to ensure that the demo will be correct:
 
@@ -59,7 +59,7 @@ Check: operation 1 done
 
 Check: operation 2 done
 
-## Instructions {#demo-groupname-run}
+## Instructions {#demo-real-time-object-detection-run}
 
 Here, give step by step instructions to reproduce the demo.
 
@@ -69,7 +69,7 @@ Step 2: XXX
 
 Make sure you are specifying where to write each line of code that needs to be executed, and what should the expected outcome be. If there are typical pitfalls / errors you experienced, point to the next section for troubleshooting.
 
-## Troubleshooting {#demo-groupname-troubleshooting}
+## Troubleshooting {#demo-real-time-object-detection-troubleshooting}
 
 Add here any troubleshooting / tips and tricks required, in the form:
 
@@ -83,7 +83,7 @@ Symptom: I run `this elegant snippet of code` and get this error: `a nasty line 
 
 Resolution: Power cycle until it works.
 
-## Demo failure demonstration {#demo-groupname-failure}
+## Demo failure demonstration {#demo-real-time-object-detection-failure}
 
 Finally, put here video of how the demo can fail, when the assumptions are not respected.
 

@@ -4,7 +4,3 @@
   - meta
 - display: 7 tasks
   filename: tasks.html
-- display: 25 errors
-  filename: errors.html
-  tags:
-  - meta
