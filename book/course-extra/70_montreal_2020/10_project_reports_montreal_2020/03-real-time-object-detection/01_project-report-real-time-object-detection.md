@@ -40,6 +40,7 @@ For this work, and with this difficult context, we were not able to build our ow
 Fortunately, a [previous project](https://docs.duckietown.org/daffy/AIDO/out/object_detection_dataset.html "Object Detection Dataset") built a whole dataset for to implement object detection in Duckietown.
 We also found [this project](https://github.com/duckietown/duckietown-objdet  "Project TBD") that aimed at implementing an object detector in DuckieTown. Unfortunately, this project seems to be deprecated, so we did not use it.
 Finally, we used the exercise 3 structure to implement our final object detector.
+
 ### Opportunity {#real-time-object-detection-final-opportunity}
 
 As stated before, no object detectors were implemented in the DuckieTown pipeline for one good reason : it could not run on the Raspberry Pi in real time.
@@ -63,61 +64,30 @@ Kalman filter is used in this project in the Tracking step.
 The main idea of the Kalman filter is that, given a model of evolution of our state, its noise model and the measurement and noise measurement model of our system, we can firstly predict the next step state then, with our measurement corresponding to this new step, we can update to take into account both the dynamic model and the measurement.
 A full lecture was given by Dr. Forbes on this subject [there](https://liampaull.ca/ift6757/assets/pres.pdf "Kalman Filter lecture").
 
-**MAYBE EXPLAIN HUNGARIAN ALGORITHM TOO ?**
-
 On another subject, the two neural networks that are presented are compared have two very different architectures. 
-Indeed, there are mainly two types of object detectors. On the one hand, we have the one-stage object detectors, such a Yolo or SSD-MobileNet, which use **TO COMPLETE**. On the other hand, the two stages object detectors **TO COMPLETE**, such as FasterRCNN or MaskRCNN.
+Indeed, there are mainly two types of object detectors. On the one hand, we have the one-stage object detectors, such a Yolo or SSD-MobileNet, which make a fixed number of predictions on grid. On the other hand, the two stages object detectors use a proposal network to find approximately objects and then use a second network to fine-tune these detections and give final predictions, such as FasterRCNN or MaskRCNN.
 One stage ODs tend to have faster inference time while two stages ODs tend to have higher mean average precision. 
 [This article](https://www.ecva.net/papers/eccv_2020/papers_ECCV/papers/123590528.pdf "MimicDet") explains quite thoroughly the differences and similarities between the two architectures. 
 
 ## Object detection models : FasterRCNN vs. YOLOv5 {#real-time-object-detection-final-first-section}
 ### FasterRCNN architecture and performance
-__Explain here the architecture of FasterRCNN__
+
+As mentioned above, FasterRCNN is a two stage detector. The first stage is called the RPN (**R**egion **P**roposal **N**etwork), it processes the images by a feature extractor and keep only the topmost feature maps to to predict bounding box proposals. The second stage then crop features from the topmost feature maps using these bounding box proposals. The cropped features are then passed on to the FastRCNN for bounding box regression and classification.
+
+As its name suggests, FastRCNN is a faster version of R-CNN. Its architecture is presented in figure 3.1.
+
+In figure 3,2, you can see the 2 stages mentioned above and the FastRCNN module.
+<figure>
+    <figcaption>Fast-RCNN architecture (source : https://arxiv.org/abs/1504.08083)</figcaption>
+    <img style='width:30em' src="fastRCNN.png"/>
+</figure>
+
+<figure>
+    <figcaption>Faster-RCNN architecture (source : https://www.researchgate.net/figure/The-architecture-of-Faster-R-CNN_fig2_324903264)</figcaption>
+    <img style='width:30em' src="fasterRCNN.png"/>
+</figure>
 
 
-
-Here is the performance of FasterRCNN with two different backbones : _Resnet50_ and _Resnet18_. Both were tested using the DuckieTown dataset mentioned [above]{#real-time-object-detection-final-literature}. The metrics used to assess the object detector's performance are **FPS** (**F**rames **P**er **S**econd) and **mAP** (**m**ean **A**verage **P**recision). The first one measures the detector's speed and the second one its accuracy.
-
-- Using the **Resnet50** backbone :
-<div align="center">
-<col4 figure-id="tab:Resnet50 backbone" class="labels-row1">
-    <span>Proposals</span>
-    <span>FPS (on GPU)</span>
-    <span>FPS (on CPU)</span>
-    <span>mAP</span>
-    <span>300</span>
-    <span>55.5 (0.018s)</span>
-    <span>1.8 (0.55s)</span>
-    <span>83.9%</span>
-    <span>50</span>
-    <span>77 (0.013s)</span>
-    <span>2.6 (0.38s)</span>
-    <span>83.8%</span>
-    <span>10</span>
-    <span>77 (0.013s)</span>
-    <span>2.7 (0.36s)</span>
-    <span>74.3%</span>
-</col4>
-</div>
-
-
-- Using **Resnet18** :
-<div align="center">
-<col4 figure-id="tab:Resnet18 backbone" class="labels-row1">
-    <span>Proposals</span>
-    <span>FPS (on GPU)</span>
-    <span>FPS (on CPU)</span>
-    <span>mAP</span>
-    <span>300</span>
-    <span>111 (0.009s)</span>
-    <span>5.55 (0.18s)</span>
-    <span>86.472%</span>
-    <span>50</span>
-    <span>142 (0.007s)</span>
-    <span>7.69 (0.13s)</span>
-    <span>86.462%</span>
-</col4>
-</div>
 
 ### Yolo architecture and performance
 YOLOv5 is a one stage object detector, like any one stage detector, it is made of three main parts :
@@ -132,7 +102,7 @@ Model neck is used in object detectors to build feature pyramids in order to det
 
 The YOLOv5 model head is the same as in the previous version of Yolo.
 
-Figure 3.1 gives an overall representation of YOLOv5 architecture. 
+Figure 3.3 gives an overall representation of YOLOv5 architecture. 
 
 <figure>
     <figcaption>YOLOv5 architecture (source : https://github.com/ultralytics)</figcaption>
@@ -140,31 +110,7 @@ Figure 3.1 gives an overall representation of YOLOv5 architecture.
 </figure>
 
 
-The metrics used are the same as for FasterRCNN, and only the fifth version of Yolo has been tested, on high and low-resolution images.
-<div align="center">
-<col4 figure-id="tab:YOLOv5" class="labels-row1">
-    <span>Resolution</span>
-    <span>FPS (on GPU)</span>
-    <span>FPS (on CPU)</span>
-    <span>mAP</span>
-    <span>640x480</span>
-    <span>110 (0.009s)</span>
-    <span>9.6 (0.104s)</span>
-    <span>71.14%</span>
-    <span>320x240</span>
-    <span>113 (0.009s)</span>
-    <span>19.5 (0.051s)</span>
-    <span>68.56%</span>
-</col4>
-</div>
 
-### Final comparison
-Those results were not obtain using the Jetson Nano nor the Raspberry Pi. Instead, we compared them using the same processor and RAM, to assess which would perform best on the Jetson Nano assuming that the performances of the detectors will have similar tendencies on the Jetson Nano.
-Here are some specifications regarding the material used to obtain the metrics provided above :
-
-- CPU : AMD Ryzen Threadripper 1950X 16-Core Processor
-- GPU : GeForce RTX 2080 Ti, 11 GB
-- RAM : 32 GB
 
 ## Tracking  {#real-time-object-detection-final-second-section}
 
@@ -276,13 +222,13 @@ Then, with the duckiebot's lane pose, we can compute the obstacle lane pose usin
     pose_y = \cos(\phi) (y + d) + \sin(\phi) x
 \end{equation}
 
-A diagram given in figure 3.2 illustrates the situation, the grey rectangle being the duckiebot and the yellow cross an obstacle.
+A diagram given in figure 3.4 illustrates the situation, the grey rectangle being the duckiebot and the yellow cross an obstacle.
 <figure>
     <figcaption>Obstacle position diagram</figcaption>
     <img style='width:30em' src="schema.png"/>
 </figure>
 
-In the figure 3.3, the flowchart to make the decision is detailed.
+In the figure 3.5, the flowchart to make the decision is detailed.
 
 <figure>
     <figcaption>Obstacle position flowchart</figcaption>
@@ -291,7 +237,7 @@ In the figure 3.3, the flowchart to make the decision is detailed.
 
 ### Stopping in front of an obstacle
 The first behaviour is quite straight forward : if an obstacle (duckiebot of duckie) is detected in our lane close enough from the bot, the lane controller passes $v = 0$ to the wheel command. 
-Figure 3.4 details the algorithm used to stop in front of an obstacle.
+Figure 3.6 details the algorithm used to stop in front of an obstacle.
 
 <figure>
     <figcaption>Algorithm to stop in front of an obstacle</figcaption>
@@ -309,7 +255,7 @@ Our solution is to change the d_off parameter used in the Lane Controller Node t
 
 First, we need to increase the d_off parameter so that the bot moves to the left lane, then keep it increased while it passes the obstacle and finally decrease it to switch back to the right lane.
 
-The decision process to know when to overtake is detailed in figure 3.3. In figure 3.5, the flowchart to overtake the obstacle is explained. The corresponding algorithm is also detailed in figure 3.6.
+The decision process to know when to overtake is detailed in figure 3.5. In figure 3.7, the flowchart to overtake the obstacle is explained. The corresponding algorithm is also detailed in figure 3.8.
 
 <figure>
     <figcaption>Obstacle overtaking flowchart</figcaption>
@@ -347,12 +293,95 @@ _Feel free to create subsections when useful to ease the flow_
 
 ## Formal performance evaluation / Results {#real-time-object-detection-final-formal}
 
+We compared the different detectors using different processors to assess which will perform best on the duckiebot.
+
+Here are some specifications regarding the material used to obtain the metrics provided above :
+
+- CPU : AMD Ryzen Threadripper 1950X 16-Core Processor
+- GPU : GeForce RTX 2080 Ti, 11 GB
+- RAM : 32 GB
+- Jetson Nano : specifications cqn be found [here](https://developer.nvidia.com/embedded/jetson-nano 'Jetson Nano specs')
+
+The metrics used to assess the object detector's performance are **FPS** (**F**rames **P**er **S**econd) and **mAP** (**m**ean **A**verage **P**recision). The first one measures the detector's speed and the second one its accuracy.
+
+We would like to remind the reader here that the following numbers are **without Tracking** and that FPS can be easily **doubled** if we skip every other image.
+
+Here is the performance of **FasterRCNN** with two different backbones : _Resnet50_ and _Resnet18_. Both were tested using the DuckieTown gym mentioned [above]{#real-time-object-detection-final-literature}.
+
+- Using the **Resnet50** backbone :
+<div align="center">
+<col4 figure-id="tab:Resnet50 backbone" class="labels-row1">
+    <span>Proposals</span>
+    <span>FPS (on GPU)</span>
+    <span>FPS (on CPU)</span>
+    <span>mAP</span>
+    <span>300</span>
+    <span>55.5 (0.018s)</span>
+    <span>1.8 (0.55s)</span>
+    <span>83.9%</span>
+    <span>50</span>
+    <span>77 (0.013s)</span>
+    <span>2.6 (0.38s)</span>
+    <span>83.8%</span>
+    <span>10</span>
+    <span>77 (0.013s)</span>
+    <span>2.7 (0.36s)</span>
+    <span>74.3%</span>
+</col4>
+</div>
+
+
+- Using **Resnet18** :
+<div align="center">
+<col4 figure-id="tab:Resnet18 backbone" class="labels-row1">
+    <span>Proposals</span>
+    <span>FPS (on GPU)</span>
+    <span>FPS (on CPU)</span>
+    <span>mAP</span>
+    <span>300</span>
+    <span>111 (0.009s)</span>
+    <span>5.55 (0.18s)</span>
+    <span>86.472%</span>
+    <span>50</span>
+    <span>142 (0.007s)</span>
+    <span>7.69 (0.13s)</span>
+    <span>86.462%</span>
+</col4>
+</div>
+
+
+YOLOv5 has been tested on high and low-resolution images.
+<div align="center">
+<col5 figure-id="tab:YOLOv5" class="labels-row1">
+    <span>Resolution</span>
+    <span>FPS (on GPU)</span>
+    <span>FPS (on CPU)</span>
+    <span>FPS (on Jetson Nano)</span>
+    <span>mAP</span>
+    <span>640x480</span>
+    <span>110 (0.009s)</span>
+    <span>9.6 (0.104s)</span>
+    <span>5 (0.200s)</span>
+    <span>71.14%</span>
+    <span>320x240</span>
+    <span>113 (0.009s)</span>
+    <span>19.5 (0.051s)</span>
+    <span>10 (0.100s)</span>
+    <span>68.56%</span>
+</col5>
+</div>
+
+
+
+<!--
 _Be rigorous!_
 
 - For each of the tasks you defined in you problem formulation, provide quantitative results (i.e., the evaluation of the previously introduced performance metrics)
 - Compare your results to the success targets. Explain successes or failures.
 - Compare your results to the "state of the art" / previous implementation where relevant. Explain failure / success.
 - Include an explanation / discussion of the results. Where things (as / better than / worst than) you expected? What were the biggest challenges?
+-->
+
 
 ## Future avenues of development {#real-time-object-detection-final-next-steps}
 
